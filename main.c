@@ -5,10 +5,12 @@
 #include "buzzer/include/buzzer.h"
 #include "FreeRTOS.h"
 #include "task.h"
+#include "joystick/include/joystick.h"
 
 uint cont = 0;
 char text_buffer[5];
-
+uint16_t vrx_value, vry_value;
+bool flag = true;
 void vNpTask(){
     while(true){
         npSetLED(cont,0,0,240);
@@ -39,10 +41,28 @@ void vBuzzerTask(){
 
 void vContTask(){
     while(true){
-        cont++;
+        if(flag) cont++;
         vTaskDelay(250);
         if(cont == 26) cont = 0;
         vTaskDelay(250);
+    }
+}
+
+void vJoystickTask(){
+    while(true){
+        joystick_read_axis(&vrx_value, &vry_value);
+        if (vrx_value < 300){
+            if (cont > 0) cont--;
+            else cont = 25;
+            flag = false;
+        }else if (vrx_value > 3500){
+            if (cont < 25) cont++;
+            else cont = 0;
+            flag = false;
+        }else{
+            flag = true;
+        }
+        vTaskDelay(300);
     }
 }
 
@@ -53,11 +73,14 @@ int main()
     npInit();
     dpInit();
     pwm_init_buzzer();
-  
+    init_joystick();
+
+
     xTaskCreate(vNpTask, "Np task", 128, NULL, 1, NULL);
     xTaskCreate(vDpTask, "Dp task", 128, NULL, 1, NULL);
     xTaskCreate(vBuzzerTask, "Buzzer task", 128, NULL, 1, NULL);
     xTaskCreate(vContTask, "Cont task", 128, NULL, 1, NULL);
+    xTaskCreate(vJoystickTask, "Joystick task", 256, NULL, 1, NULL);
     vTaskStartScheduler();
     while (true) {
         
