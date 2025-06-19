@@ -50,6 +50,7 @@
         "tuple": "c",
         "type_traits": "c",
         "utility": "c",
-        "display.h": "c"
+        "display.h": "c",
+        "buzzer.h": "c"
     }
 }

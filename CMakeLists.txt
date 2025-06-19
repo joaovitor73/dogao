@@ -30,6 +30,9 @@ include(pico_sdk_import.cmake)
 
 project(main C CXX ASM)
 
+# Pull in FreeRTOS
+include($ENV{FREERTOS_KERNEL_PATH}/portable/ThirdParty/GCC/RP2040/FreeRTOS_Kernel_import.cmake)
+
 # Initialise the Raspberry Pi Pico SDK
 pico_sdk_init()
 
@@ -40,6 +43,10 @@ buzzer/src/buzzer.c)
 
 pico_set_program_name(main "main")
 pico_set_program_version(main "0.1")
+
+# Add the standard library to the build
+target_link_libraries(main
+        pico_stdlib FreeRTOS-Kernel FreeRTOS-Kernel-Heap4)
 
 pico_generate_pio_header(main ${CMAKE_CURRENT_LIST_DIR}/neo/pio_neopixel/ws2818b.pio)
 

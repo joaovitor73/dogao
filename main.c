@@ -3,27 +3,63 @@
 #include "neo/include/neopixel.h"
 #include "display/include/display.h"
 #include "buzzer/include/buzzer.h"
+#include "FreeRTOS.h"
+#include "task.h"
+
+uint cont = 0;
+char text_buffer[5];
+
+void vNpTask(){
+    while(true){
+        npSetLED(cont,0,0,240);
+        npSetLED(cont+1,0,240,0);
+        npSetLED(cont+2,240,0,0);
+        npWrite();
+        vTaskDelay(250);
+        npClear();
+        vTaskDelay(250);
+    }
+}
+
+void vDpTask(){
+     while(true){
+        sprintf(text_buffer, "%u", cont); 
+        dpWrite(text_buffer, 60, 25);
+        vTaskDelay(250);
+        dpRestart();
+    }
+}
+
+void vBuzzerTask(){
+    while(true){
+        beep(200);
+        vTaskDelay(250);
+    }
+}
+
+void vContTask(){
+    while(true){
+        cont++;
+        vTaskDelay(250);
+        if(cont == 26) cont = 0;
+        vTaskDelay(250);
+    }
+}
+
+
 int main()
 {
     stdio_init_all();
     npInit();
     dpInit();
     pwm_init_buzzer();
-    uint cont = 0;
-    char text_buffer[5];
+  
+    xTaskCreate(vNpTask, "Np task", 128, NULL, 1, NULL);
+    xTaskCreate(vDpTask, "Dp task", 128, NULL, 1, NULL);
+    xTaskCreate(vBuzzerTask, "Buzzer task", 128, NULL, 1, NULL);
+    xTaskCreate(vContTask, "Cont task", 128, NULL, 1, NULL);
+    vTaskStartScheduler();
     while (true) {
-        npSetLED(cont,0,0,240);
-        npSetLED(cont+1,0,240,0);
-        npSetLED(cont+2,240,0,0);
-        sprintf(text_buffer, "%u", cont); 
-        dpWrite(text_buffer, 60, 25);
-        npWrite();
-        beep(1000);
-        sleep_ms(100);
-        npClearRange(cont, cont+2);
-        sleep_ms(100);
-        dpRestart();
-        cont++;
-        if(cont == 26) cont = 0;
+        
     }
 }
