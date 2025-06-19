@@ -40,6 +40,15 @@
     "files.associations": {
         "ws2818b.pio.h": "c",
         "clocks.h": "c",
-        "neopixel.h": "c"
+        "neopixel.h": "c",
+        "charconv": "c",
+        "optional": "c",
+        "format": "c",
+        "system_error": "c",
+        "array": "c",
+        "functional": "c",
+        "tuple": "c",
+        "type_traits": "c",
+        "utility": "c"
     }
 }

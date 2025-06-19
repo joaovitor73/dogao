@@ -35,7 +35,7 @@ pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
 
-add_executable(main main.c neo/src/neopixel.c)
+add_executable(main main.c neo/src/neopixel.c display/src/display.c  display/inc/ssd1306_i2c.c)
 
 pico_set_program_name(main "main")
 pico_set_program_version(main "0.1")
@@ -56,6 +56,7 @@ target_include_directories(main PRIVATE
 target_link_libraries(main 
         hardware_pio
         hardware_clocks
+        hardware_i2c
      )
 
 pico_add_extra_outputs(main)
