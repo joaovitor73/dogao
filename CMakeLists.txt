@@ -39,7 +39,7 @@ pico_sdk_init()
 # Add executable. Default name is the project name, version 0.1
 
 add_executable(main main.c neo/src/neopixel.c display/src/display.c  display/inc/ssd1306_i2c.c
-buzzer/src/buzzer.c joystick/src/joystick.c)
+buzzer/src/buzzer.c joystick/src/joystick.c button/src/button.c)
 
 pico_set_program_name(main "main")
 pico_set_program_version(main "0.1")
@@ -53,6 +53,8 @@ pico_generate_pio_header(main ${CMAKE_CURRENT_LIST_DIR}/neo/pio_neopixel/ws2818b
 # Add the standard library to the build
 target_link_libraries(main
         pico_stdlib)
+
+pico_enable_stdio_usb(main 1)
 
 # Add the standard include files to the build
 target_include_directories(main PRIVATE

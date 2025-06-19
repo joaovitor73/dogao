@@ -6,16 +6,20 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "joystick/include/joystick.h"
+#include "button/include/button.h"
 
 uint cont = 0;
 char text_buffer[5];
 uint16_t vrx_value, vry_value;
-bool flag = true;
+bool flag = true, pressedValue = false;
+uint npOne[] = {0,0,240};
+uint npTwo[] = {0,240,0};
+uint npTree[] = {240,0,0};
 void vNpTask(){
     while(true){
-        npSetLED(cont,0,0,240);
-        npSetLED(cont+1,0,240,0);
-        npSetLED(cont+2,240,0,0);
+        npSetLED(cont,npOne[0], npOne[1],npOne[2]);
+        npSetLED(cont+1,npTwo[0], npTwo[1], npTwo[2]);
+        npSetLED(cont+2,npTree[0], npTree[1], npTree[2]);
         npWrite();
         vTaskDelay(250);
         npClear();
@@ -34,7 +38,8 @@ void vDpTask(){
 
 void vBuzzerTask(){
     while(true){
-        beep(200);
+        if(!pressedValue)
+            beep(200);
         vTaskDelay(250);
     }
 }
@@ -66,6 +71,30 @@ void vJoystickTask(){
     }
 }
 
+void vButtonTask(){
+    while(true){
+        printf("Estado Ativo: %s\n", pressedValue ? "TRUE" : "FALSE");
+        if(pressedValue){
+            npOne[0] = 240;
+            npOne[1] = 0;
+            npOne[2] = 0;
+            npTree[0] = 0;
+            npTree[1] = 0;
+            npTree[2] = 240;
+            npClear();
+        }else{
+            npOne[0] = 0;
+            npOne[1] = 0;
+            npOne[2] = 240;
+            npTree[0] = 240;
+            npTree[1] = 0;
+            npTree[2] = 0;
+            npClear();
+        }
+        vTaskDelay(250);
+    }
+}
+
 
 int main()
 {
@@ -74,13 +103,14 @@ int main()
     dpInit();
     pwm_init_buzzer();
     init_joystick();
-
+    init_buttons(&pressedValue);
 
     xTaskCreate(vNpTask, "Np task", 128, NULL, 1, NULL);
     xTaskCreate(vDpTask, "Dp task", 128, NULL, 1, NULL);
     xTaskCreate(vBuzzerTask, "Buzzer task", 128, NULL, 1, NULL);
     xTaskCreate(vContTask, "Cont task", 128, NULL, 1, NULL);
     xTaskCreate(vJoystickTask, "Joystick task", 256, NULL, 1, NULL);
+    xTaskCreate(vButtonTask, "Button task", 128, NULL, 1, NULL);
     vTaskStartScheduler();
     while (true) {
         
