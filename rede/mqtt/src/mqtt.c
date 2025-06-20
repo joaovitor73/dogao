@@ -35,12 +35,12 @@ void inscrever_topico(mqtt_client_t *client, const char *topico) {
  *   - status: resultado da tentativa de conexão */
 static void mqtt_connection_cb(mqtt_client_t *client, void *arg, mqtt_connection_status_t status) {
     if (status == MQTT_CONNECT_ACCEPTED) {
-        printf("Conectado ao broker MQTT com sucesso!\n");
-        gpio_put(12,1);
-        inscrever_topico(client,"escola/sala1/temperatura") ;
+       // printf("Conectado ao broker MQTT com sucesso!\n");
+       // gpio_put(12,1);
+       // inscrever_topico(client,"escola/sala1/temperatura") ;
     } else {
-        gpio_put(13,1);
-        printf("Falha ao conectar ao broker, código: %d\n", status);
+       // gpio_put(13,1);
+        //printf("Falha ao conectar ao broker, código: %d\n", status);
     }
 }
 

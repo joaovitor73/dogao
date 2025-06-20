@@ -34,6 +34,9 @@ void npInit() {
     leds[i].G = 0;
     leds[i].B = 0;
   }
+
+  npClear();
+  npWrite();
 }
 
 void npSetLED(const uint index, const uint8_t r, const uint8_t g, const uint8_t b) {

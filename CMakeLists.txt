@@ -39,7 +39,7 @@ pico_sdk_init()
 # Add executable. Default name is the project name, version 0.1
 
 add_executable(main main.c neo/src/neopixel.c display/src/display.c  display/inc/ssd1306_i2c.c
-buzzer/src/buzzer.c joystick/src/joystick.c button/src/button.c rede/mqtt/src/mqtt.c rede/wifi/src/wifi.c)
+buzzer/src/buzzer.c joystick/src/joystick.c button/src/button.c rede/mqtt/src/mqtt.c rede/wifi/src/wifi.c led/src/led.c)
 
 pico_set_program_name(main "main")
 pico_set_program_version(main "0.1")

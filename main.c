@@ -9,6 +9,7 @@
 #include "button/include/button.h"
 #include "rede/mqtt/include/mqtt.h"
 #include "rede/wifi/include/wifi.h"
+#include "led/include/led.h"
 
 uint cont = 0;
 char text_buffer[5];
@@ -107,14 +108,16 @@ void vSendValueCont(){
 int main()
 {
     stdio_init_all();
+    init_led_pwm();
     npInit();
     dpInit();
     pwm_init_buzzer();
     init_joystick();
     init_buttons(&pressedValue);
+    onRed();
     connect_to_wifi("ssid", "password");
     mqtt_setup("bitdog2", "host", "aluno", "senha123");
-
+    ofRed();
     xTaskCreate(vNpTask, "Np task", 128, NULL, 1, NULL);
     xTaskCreate(vDpTask, "Dp task", 128, NULL, 1, NULL);
     xTaskCreate(vBuzzerTask, "Buzzer task", 128, NULL, 1, NULL);
