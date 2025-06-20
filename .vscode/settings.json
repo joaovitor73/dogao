@@ -53,6 +53,9 @@
         "display.h": "c",
         "buzzer.h": "c",
         "joystick.h": "c",
-        "button.h": "c"
+        "button.h": "c",
+        "cyw43_arch.h": "c",
+        "stdio.h": "c",
+        "lwipopts.h": "c"
     }
 }

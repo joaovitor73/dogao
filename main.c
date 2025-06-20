@@ -7,6 +7,8 @@
 #include "task.h"
 #include "joystick/include/joystick.h"
 #include "button/include/button.h"
+#include "rede/mqtt/include/mqtt.h"
+#include "rede/wifi/include/wifi.h"
 
 uint cont = 0;
 char text_buffer[5];
@@ -73,7 +75,6 @@ void vJoystickTask(){
 
 void vButtonTask(){
     while(true){
-        printf("Estado Ativo: %s\n", pressedValue ? "TRUE" : "FALSE");
         if(pressedValue){
             npOne[0] = 240;
             npOne[1] = 0;
@@ -95,6 +96,13 @@ void vButtonTask(){
     }
 }
 
+void vSendValueCont(){
+    while(true){
+        mqtt_comm_publish("cont/value", text_buffer, strlen(text_buffer));
+        vTaskDelay(500);
+    }
+}
+
 
 int main()
 {
@@ -104,6 +112,8 @@ int main()
     pwm_init_buzzer();
     init_joystick();
     init_buttons(&pressedValue);
+    connect_to_wifi("ssid", "password");
+    mqtt_setup("bitdog2", "host", "aluno", "senha123");
 
     xTaskCreate(vNpTask, "Np task", 128, NULL, 1, NULL);
     xTaskCreate(vDpTask, "Dp task", 128, NULL, 1, NULL);
@@ -111,6 +121,7 @@ int main()
     xTaskCreate(vContTask, "Cont task", 128, NULL, 1, NULL);
     xTaskCreate(vJoystickTask, "Joystick task", 256, NULL, 1, NULL);
     xTaskCreate(vButtonTask, "Button task", 128, NULL, 1, NULL);
+    xTaskCreate(vSendValueCont, "Send value cont", 528, NULL, 1, NULL);
     vTaskStartScheduler();
     while (true) {
         
