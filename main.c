@@ -33,9 +33,8 @@ void vNpTask(){
 void vDpTask(){
      while(true){
         sprintf(text_buffer, "%u", cont); 
-        dpWrite(text_buffer, 60, 25);
+        dpWriteCenter(text_buffer);
         vTaskDelay(250);
-        dpRestart();
     }
 }
 
@@ -116,7 +115,7 @@ int main()
     init_buttons(&pressedValue);
     onRed();
     connect_to_wifi("ssid", "password");
-    mqtt_setup("bitdog2", "host", "aluno", "senha123");
+    mqtt_setup("bitdog2", "ip", "aluno", "senha123");
     ofRed();
     xTaskCreate(vNpTask, "Np task", 128, NULL, 1, NULL);
     xTaskCreate(vDpTask, "Dp task", 128, NULL, 1, NULL);

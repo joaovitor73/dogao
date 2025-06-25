@@ -14,5 +14,5 @@
 
 void dpInit();
 void dpRestart();
-void dpWrite(char *mensage, int x, int y);
+void dpWriteCenter(char *mensage);
 #endif

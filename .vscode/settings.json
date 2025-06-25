@@ -57,6 +57,7 @@
         "cyw43_arch.h": "c",
         "stdio.h": "c",
         "lwipopts.h": "c",
-        "led.h": "c"
+        "led.h": "c",
+        "ssd1306_font.h": "c"
     }
 }
