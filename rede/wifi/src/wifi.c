@@ -3,23 +3,38 @@
 #include <stdio.h>                   
 #include "pico/stdio.h"
 
+int status;
 
-void connect_to_wifi(const char *ssid, const char *password) {
-    // Inicializa o driver Wi-Fi (CYW43). Retorna 0 se for bem-sucedido.
-    if (cyw43_arch_init()) {
-        printf("Erro ao iniciar Wi-Fi\n");
+void init_wifi(char *text_buffer){
+     if (cyw43_arch_init()) {
+        sniprintf(text_buffer, 100, "Erro ao iniciar Wi-Fi\n");
         return;
     }
+}
 
+bool connect_to_wifi(const char *ssid, const char *password, char *text_buffer) {
+    sniprintf(text_buffer, 100, "Conectando...\n");
 
     // Habilita o modo estação (STA) para se conectar a um ponto de acesso.
     cyw43_arch_enable_sta_mode();
 
     // Tenta conectar à rede Wi-Fi com um tempo limite de 30 segundos (30000 ms).
     // Utiliza autenticação WPA2 com criptografia AES.
-    if (cyw43_arch_wifi_connect_timeout_ms(ssid, password, CYW43_AUTH_WPA2_AES_PSK, 30000)) {
-        printf("Erro ao conectar\n");  // Se falhar, imprime mensagem de erro.
-    } else {        
-        printf("Conectado ao Wi-Fi\n");  // Se conectar com sucesso, exibe confirmação.
+    status = 1;
+    if (cyw43_arch_wifi_connect_timeout_ms(ssid, password, CYW43_AUTH_WPA2_AES_PSK, 3000)) {
+        sniprintf(text_buffer, 100, "Erro ao conectar\n");
+    } else {  
+        sniprintf(text_buffer, 100, "Conectado ao Wi-Fi\n");
+        return true;      
+    }
+    return false;
+}
+
+bool is_connected(){
+    int status = cyw43_tcpip_link_status(&cyw43_state, CYW43_ITF_STA);
+    if (status == CYW43_LINK_UP) {
+        return true;
+    }else{
+        return false;
     }
 }

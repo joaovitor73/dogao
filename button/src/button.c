@@ -10,7 +10,6 @@ void btns_callback(uint gpio, uint32_t events)
         if (gpio == BTN_A) {
             if (pressed_external_ref != NULL) { // Garante que o ponteiro não seja NULL
                 *pressed_external_ref = !(*pressed_external_ref); // Inverte o estado da variável lá no main
-                printf("Botao %u pressionado! Estado atual: %s\n", gpio, *pressed_external_ref ? "TRUE" : "FALSE");
             }
         }
         last_time = current_time; 

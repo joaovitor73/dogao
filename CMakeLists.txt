@@ -2,6 +2,8 @@
 
 cmake_minimum_required(VERSION 3.13)
 
+add_compile_definitions(PICO_SUPPORT_SMP=1)
+
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -33,6 +35,7 @@ project(main C CXX ASM)
 # Pull in FreeRTOS
 include($ENV{FREERTOS_KERNEL_PATH}/portable/ThirdParty/GCC/RP2040/FreeRTOS_Kernel_import.cmake)
 
+
 # Initialise the Raspberry Pi Pico SDK
 pico_sdk_init()
 
@@ -43,6 +46,7 @@ buzzer/src/buzzer.c joystick/src/joystick.c button/src/button.c rede/mqtt/src/mq
 
 pico_set_program_name(main "main")
 pico_set_program_version(main "0.1")
+
 
 # Add the standard library to the build
 target_link_libraries(main

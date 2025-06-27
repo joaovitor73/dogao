@@ -50,20 +50,19 @@ static void mqtt_connection_cb(mqtt_client_t *client, void *arg, mqtt_connection
  *   - broker_ip: endereço IP do broker como string (ex: "192.168.1.1")
  *   - user: nome de usuário para autenticação (pode ser NULL)
  *   - pass: senha para autenticação (pode ser NULL) */
-void mqtt_setup(const char *client_id, const char *broker_ip, const char *user, const char *pass) {
+void mqtt_setup(const char *client_id, const char *broker_ip, const char *user, const char *pass, char *text_buffer) {
     ip_addr_t broker_addr;  // Estrutura para armazenar o IP do broker
-
-    
+    sniprintf(text_buffer, 100,"Conectando com o broker MQTT\n");
     // Converte o IP de string para formato numérico
     if (!ip4addr_aton(broker_ip, &broker_addr)) {
-        printf("Erro no IP\n");
+        sniprintf(text_buffer, 100, "Erro no IP\n");
         return;
     }
 
     // Cria uma nova instância do cliente MQTT
     client = mqtt_client_new();
     if (client == NULL) {
-        printf("Falha ao criar o cliente MQTT\n");
+        sniprintf(text_buffer, 100,"Falha ao criar o cliente MQTT\n");
         return;
     }
 

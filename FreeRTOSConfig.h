@@ -101,11 +101,14 @@
 #define configMAX_API_CALL_INTERRUPT_PRIORITY   [dependent on processor and application]
 */
 
+#define configNUMBER_OF_CORES      2
+#define configUSE_PASSIVE_IDLE_HOOK  0
+
 /* SMP port only */
 #define configNUM_CORES 2
 #define configTICK_CORE 0
 #define configRUN_MULTIPLE_PRIORITIES 1
-#define configUSE_CORE_AFFINITY 0
+#define configUSE_CORE_AFFINITY 1
 
 /* RP2040 specific */
 #define configSUPPORT_PICO_SYNC_INTEROP 1
