@@ -90,7 +90,7 @@
 // LWIP_NUM_SYS_TIMEOUT_INTERNAL é o número de timeouts usados internamente pelo LWIP
 // O + 1 está adicionando um timeout extra para ser usado pela aplicação
 // Timeouts são usados para várias operações como retransmissões TCP, tempo de espera de conexão, etc.
-#define MEMP_NUM_SYS_TIMEOUT   (LWIP_NUM_SYS_TIMEOUT_INTERNAL + 1)
+#define MEMP_NUM_SYS_TIMEOUT   32
 
 // Define o número máximo de requisições MQTT que podem estar "em voo" (não confirmadas) simultaneamente
 // Especificamente para operações de subscribe (inscrição em tópicos MQTT)

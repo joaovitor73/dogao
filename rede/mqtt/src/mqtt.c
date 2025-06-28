@@ -7,7 +7,7 @@
 /* Variável global estática para armazenar a instância do cliente MQTT
  * 'static' limita o escopo deste arquivo */
 static mqtt_client_t *client;
-
+bool conected = false;
 
 void meu_data_cb(void *arg, const u8_t *data, u16_t len, u8_t flags) {
     printf("Payload recebido: %.*s\n", len, data);
@@ -28,22 +28,6 @@ void inscrever_topico(mqtt_client_t *client, const char *topico) {
     mqtt_sub_unsub(client, topico, 0, meu_subscribe_cb, NULL, 1);
 }
 
-/* Callback de conexão MQTT - chamado quando o status da conexão muda
- * Parâmetros:
- *   - client: instância do cliente MQTT
- *   - arg: argumento opcional (não usado aqui)
- *   - status: resultado da tentativa de conexão */
-static void mqtt_connection_cb(mqtt_client_t *client, void *arg, mqtt_connection_status_t status) {
-    if (status == MQTT_CONNECT_ACCEPTED) {
-       // printf("Conectado ao broker MQTT com sucesso!\n");
-       // gpio_put(12,1);
-       // inscrever_topico(client,"escola/sala1/temperatura") ;
-    } else {
-       // gpio_put(13,1);
-        //printf("Falha ao conectar ao broker, código: %d\n", status);
-    }
-}
-
 /* Função para configurar e iniciar a conexão MQTT
  * Parâmetros:
  *   - client_id: identificador único para este cliente
@@ -51,18 +35,27 @@ static void mqtt_connection_cb(mqtt_client_t *client, void *arg, mqtt_connection
  *   - user: nome de usuário para autenticação (pode ser NULL)
  *   - pass: senha para autenticação (pode ser NULL) */
 void mqtt_setup(const char *client_id, const char *broker_ip, const char *user, const char *pass, char *text_buffer) {
+    if (client != NULL && mqtt_client_is_connected(client)) {
+        return;
+    }
     ip_addr_t broker_addr;  // Estrutura para armazenar o IP do broker
-    sniprintf(text_buffer, 100,"Conectando com o broker MQTT\n");
+    sniprintf(text_buffer, 100,"Conectando ao broker\n");
     // Converte o IP de string para formato numérico
     if (!ip4addr_aton(broker_ip, &broker_addr)) {
         sniprintf(text_buffer, 100, "Erro no IP\n");
         return;
     }
 
+    if (client != NULL) {
+        mqtt_disconnect(client);
+        mqtt_client_free(client);
+        client = NULL;
+    }
+
     // Cria uma nova instância do cliente MQTT
     client = mqtt_client_new();
     if (client == NULL) {
-        sniprintf(text_buffer, 100,"Falha ao criar o cliente MQTT\n");
+        sniprintf(text_buffer, 100,"Falha no cliente\n");
         return;
     }
 
@@ -82,7 +75,7 @@ void mqtt_setup(const char *client_id, const char *broker_ip, const char *user, 
     //   - mqtt_connection_cb: callback de status
     //   - NULL: argumento opcional para o callback
     //   - &ci: informações de conexão
-    mqtt_client_connect(client, &broker_addr, 1883, mqtt_connection_cb, NULL, &ci);
+    mqtt_client_connect(client, &broker_addr, 1883, NULL, &conected, &ci);
 }
 
 /* Callback de confirmação de publicação
@@ -119,5 +112,10 @@ void mqtt_comm_publish(const char *topic, const uint8_t *data, size_t len) {
     if (status != ERR_OK) {
         printf("mqtt_publish falhou ao ser enviada: %d\n", status);
     }
+}
+
+bool mqtt_is_connected(){
+    if (mqtt_client_is_connected(client)) return true;
+    else return false;
 }
 

@@ -5,6 +5,11 @@
 
 int status;
 
+void restart_wifi(){
+    cyw43_arch_deinit();         
+    cyw43_arch_init();
+}
+
 void init_wifi(char *text_buffer){
      if (cyw43_arch_init()) {
         sniprintf(text_buffer, 100, "Erro ao iniciar Wi-Fi\n");
