@@ -45,6 +45,24 @@ allow_anonymous true
 
 6. Para iniciar o broker manualmente com esse arquivo de configuração, execute o seguinte comando dentro da pasta: mosquitto -c "C:\Program Files\mosquitto\mosquitto.conf" -v
 
+## Contribuições
+
+Esse projeto está em desenvolvimento e toda ajuda é bem-vinda! Você pode contribuir de várias formas:
+
+- Abrindo **issues** com bugs, dúvidas ou sugestões
+- Criando **pull requests** com correções, melhorias ou novos módulos
+- Compartilhando ideias para tornar a biblioteca mais fácil de usar
+
+### Como contribuir:
+
+1. Faça um fork do repositório
+2. Crie uma branch para sua funcionalidade ou correção: git checkout -b minha-contribuicao
+3. Faça os commits com mensagens claras
+4. Envie um pull request explicando o que foi alterado
+
+
+
+
 
 
 
