@@ -138,26 +138,24 @@ void vConectWifi(void *pvParameters) {
     wifi_connection_state_t currentState = STATE_WIFI_DISCONNECTED;
     while (true) {
         if(currentState == STATE_WIFI_DISCONNECTED){
+             onRed();
             if(connect_to_wifi("ssid", "password", text_buffer)){
                 currentState = STATE_WIFI_CONNECTED;
                 conected_wifi = true;
                 xEventGroupSetBits(xEventGroupWifi, WIFI_CONNECTED_BIT);
-                ofRed();
             }else{
-                onRed();
                 vTaskDelay(pdMS_TO_TICKS(5000)); 
             }
         }else{
             conected_wifi = is_connected();
             if (conected_wifi) {
-                ofRed();
+              
                 vTaskDelay(pdMS_TO_TICKS(1000));
             } else {
                 currentState = STATE_WIFI_DISCONNECTED;
                 xEventGroupClearBits(xEventGroupWifi, WIFI_CONNECTED_BIT);
                 xEventGroupClearBits(xEventGroupMqtt, MQTT_CONNECTED_BIT);
                 conected_mqtt = false;
-                onRed();
             }
         }
     }
@@ -167,9 +165,10 @@ void vConectMqtt(void * pvParameters){
     mqtt_connection_state_t currentState = STATE_MQTT_DISCONNECTED;
     while(true){
         xEventGroupWaitBits(xEventGroupWifi, WIFI_CONNECTED_BIT, pdFALSE, pdTRUE, portMAX_DELAY);
-        onRed();
+        offRed();
         while (conected_wifi) {
             if(currentState == STATE_MQTT_DISCONNECTED){
+                onGreen();
                 mqtt_setup("bitdog5", "ip", "aluno", "senha123", text_buffer);
 
                 int tentativas = 0;
@@ -182,20 +181,17 @@ void vConectMqtt(void * pvParameters){
                 if(conected_mqtt){
                     currentState = STATE_MQTT_CONNECTED;
                     xEventGroupSetBits(xEventGroupMqtt, MQTT_CONNECTED_BIT);
-                    ofRed();
                 }else{
-                    onRed();
                     vTaskDelay(pdMS_TO_TICKS(5000));
                 }
-            }else{
+            }else{       
+                offGreen();   
                 conected_mqtt = mqtt_is_connected();
                 if (conected_mqtt) {
-                    ofRed();
                     vTaskDelay(pdMS_TO_TICKS(1000));
                 } else {
                     currentState = STATE_MQTT_DISCONNECTED;
                     xEventGroupClearBits(xEventGroupMqtt, MQTT_CONNECTED_BIT);
-                    onRed();
                 }
             }
         }
@@ -208,14 +204,26 @@ void vConectMqtt(void * pvParameters){
     }
 }
 
+void vStatusLed(){
+    while(true){
+        xEventGroupWaitBits(xEventGroupMqtt, MQTT_CONNECTED_BIT, pdFALSE, pdTRUE, portMAX_DELAY);
+        while (conected_mqtt) {
+            onBlue();
+            vTaskDelay(50 / portTICK_PERIOD_MS );
+            offBlue();
+            vTaskDelay(950 / portTICK_PERIOD_MS);
+        }
+    }
+}
+
 int main() {
     stdio_init_all();
-    TaskHandle_t wifi_handle, display_handle, cont_handle, buzzy_handle, joystick_handle, neo_handle, button_handle, send_value_handle, mqtt_handle;
+    TaskHandle_t wifi_handle, display_handle, cont_handle, buzzy_handle, joystick_handle, neo_handle, button_handle, led_status_handle, send_value_handle, mqtt_handle;
 
     xEventGroupWifi = xEventGroupCreate();
     xEventGroupMqtt = xEventGroupCreate();
 
-    init_led_pwm();
+    init_leds();
     npInit();
     dpInit();
     pwm_init_buzzer();
@@ -231,6 +239,7 @@ int main() {
     xTaskCreate(vButtonTask, "Button task", 128, NULL, 1, &button_handle);
     xTaskCreate(vSendValueCont, "Send value cont", 528, NULL, 1, &send_value_handle);
     xTaskCreate(vConectMqtt, "Conect Mqtt", 8100, NULL, 1, &mqtt_handle);
+    xTaskCreate(vStatusLed, "Status led", 64, NULL, 1, &led_status_handle);
 
     vTaskCoreAffinitySet(mqtt_handle, (1 << 0));
     vTaskCoreAffinitySet(wifi_handle, (1 << 0));  // WiFi on core 0
@@ -241,6 +250,7 @@ int main() {
     vTaskCoreAffinitySet(button_handle, (1 << 1));
     vTaskCoreAffinitySet(neo_handle, (1 << 1));
     vTaskCoreAffinitySet(send_value_handle, (1 << 1));
+    vTaskCoreAffinitySet(led_status_handle, (1 << 1));
     vTaskStartScheduler();
     while (true) {}
 }

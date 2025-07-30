@@ -10,7 +10,15 @@
 #define led_level  10
 
 void init_led_pwm();
+void init_leds();
+void onRedpwm();
+void ofRedpwm();
 void onRed();
-void ofRed();
+void offRed();
+void onGreen();
+void offGreen();
+void onBlue();
+void offBlue();
+
 
 #endif
