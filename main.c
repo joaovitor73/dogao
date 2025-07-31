@@ -11,10 +11,12 @@
 #include "rede/wifi/include/wifi.h"
 #include "led/include/led.h"
 #include "event_groups.h"
+#include "hardware/watchdog.h"
 
 uint cont = 0;
 char text_buffer[100];
 uint16_t vrx_value, vry_value;
+bool caiu = false;
 bool flag = true, pressedValue = false;
 uint npOne[] = {0,0,240};
 uint npTwo[] = {0,240,0};
@@ -143,19 +145,21 @@ void vConectWifi(void *pvParameters) {
                 currentState = STATE_WIFI_CONNECTED;
                 conected_wifi = true;
                 xEventGroupSetBits(xEventGroupWifi, WIFI_CONNECTED_BIT);
+                caiu = false;
             }else{
                 vTaskDelay(pdMS_TO_TICKS(5000)); 
             }
         }else{
             conected_wifi = is_connected();
-            if (conected_wifi) {
-              
+            if (conected_wifi) {  
+                offRed(); 
                 vTaskDelay(pdMS_TO_TICKS(1000));
             } else {
                 currentState = STATE_WIFI_DISCONNECTED;
                 xEventGroupClearBits(xEventGroupWifi, WIFI_CONNECTED_BIT);
                 xEventGroupClearBits(xEventGroupMqtt, MQTT_CONNECTED_BIT);
                 conected_mqtt = false;
+                caiu = true;
             }
         }
     }
@@ -216,9 +220,20 @@ void vStatusLed(){
     }
 }
 
+
+void vWatchdogTask() {
+    while (true) {
+        if (!caiu) {
+            watchdog_update();
+        }
+        vTaskDelay(pdMS_TO_TICKS(500)); // alimentar o watchdog a cada 500ms
+    }
+}
+
+
 int main() {
     stdio_init_all();
-    TaskHandle_t wifi_handle, display_handle, cont_handle, buzzy_handle, joystick_handle, neo_handle, button_handle, led_status_handle, send_value_handle, mqtt_handle;
+    TaskHandle_t wifi_handle, display_handle, cont_handle, buzzy_handle, joystick_handle, neo_handle, button_handle, led_status_handle, send_value_handle, mqtt_handle, watchdog_handle;
 
     xEventGroupWifi = xEventGroupCreate();
     xEventGroupMqtt = xEventGroupCreate();
@@ -230,6 +245,8 @@ int main() {
     init_joystick();
     init_buttons(&pressedValue);
 
+    watchdog_enable(4000, 1);
+
     xTaskCreate(vDpTask, "Dp task", 2048 ,NULL, 1, &display_handle);
     xTaskCreate(vConectWifi, "Connect to wifi", 8100, NULL,1, &wifi_handle);
     xTaskCreate(vNpTask, "Np task", 128, NULL, 1, &neo_handle);
@@ -240,6 +257,8 @@ int main() {
     xTaskCreate(vSendValueCont, "Send value cont", 528, NULL, 1, &send_value_handle);
     xTaskCreate(vConectMqtt, "Conect Mqtt", 8100, NULL, 1, &mqtt_handle);
     xTaskCreate(vStatusLed, "Status led", 64, NULL, 1, &led_status_handle);
+    xTaskCreate(vWatchdogTask, "Watchdog task", 64, NULL, 1, &watchdog_handle);
+
 
     vTaskCoreAffinitySet(mqtt_handle, (1 << 0));
     vTaskCoreAffinitySet(wifi_handle, (1 << 0));  // WiFi on core 0
@@ -251,6 +270,8 @@ int main() {
     vTaskCoreAffinitySet(neo_handle, (1 << 1));
     vTaskCoreAffinitySet(send_value_handle, (1 << 1));
     vTaskCoreAffinitySet(led_status_handle, (1 << 1));
+    vTaskCoreAffinitySet(watchdog_handle, (1 << 1));
+   
     vTaskStartScheduler();
     while (true) {}
 }
