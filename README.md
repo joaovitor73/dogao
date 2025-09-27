@@ -26,6 +26,21 @@ O objetivo é centralizar todo o controle da placa da BitDogLab em uma única in
 [System.Environment]::SetEnvironmentVariable("FREERTOS_KERNEL_PATH", "C:\caminho\para\FreeRTOS-Kernel", "User")
 ```
 
+### Instação no Ubuntu
+
+```powershell
+# Cria a pasta pico no seu home
+mkdir -p $HOME/pico
+
+# Vai para a pasta recém-criada
+cd $HOME/pico
+
+# Clona o FreeRTOS-Kernel (versão estável)
+git clone -b V11.1.0 https://github.com/FreeRTOS/FreeRTOS-Kernel.git
+
+# Exporta a variavel
+export FREERTOS_KERNEL_PATH=$HOME/pico/FreeRTOS-Kernel
+```
 ## Instalação do Mosquitto no Windows
 
 1. Acesse o site oficial do Mosquitto em: [https://mosquitto.org/download](https://mosquitto.org/download)
